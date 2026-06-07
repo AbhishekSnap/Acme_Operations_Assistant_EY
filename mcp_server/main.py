@@ -29,11 +29,22 @@ async def get_conn():
 # Tool implementations
 # ---------------------------------------------------------------------------
 
+async def tool_list_customers() -> dict:
+    conn = await get_conn()
+    try:
+        rows = await conn.fetch(
+            "SELECT id, name, company, tier, account_manager FROM customers ORDER BY company"
+        )
+        return {"customers": [dict(r) for r in rows], "count": len(rows)}
+    finally:
+        await conn.close()
+
+
 async def tool_get_customer_profile(customer_name: str) -> dict:
     conn = await get_conn()
     try:
         row = await conn.fetchrow(
-            "SELECT * FROM customers WHERE LOWER(name) LIKE LOWER($1)",
+            "SELECT * FROM customers WHERE LOWER(name) LIKE LOWER($1) OR LOWER(company) LIKE LOWER($1)",
             f"%{customer_name}%",
         )
         if not row:
@@ -51,7 +62,7 @@ async def tool_get_open_issues(customer_name: str) -> dict:
             SELECT i.id, i.title, i.status, i.priority, i.created_at, i.updated_at
             FROM issues i
             JOIN customers c ON c.id = i.customer_id
-            WHERE LOWER(c.name) LIKE LOWER($1)
+            WHERE (LOWER(c.name) LIKE LOWER($1) OR LOWER(c.company) LIKE LOWER($1))
               AND i.status IN ('open', 'in_progress')
             ORDER BY
               CASE i.priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2
@@ -106,6 +117,18 @@ async def tool_create_next_action(
 
 
 TOOL_REGISTRY = {
+    "list_customers": {
+        "fn": tool_list_customers,
+        "schema": {
+            "name": "list_customers",
+            "description": "List all customers with their industry, tier, and account manager.",
+            "input_schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
     "get_customer_profile": {
         "fn": tool_get_customer_profile,
         "schema": {

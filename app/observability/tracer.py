@@ -176,7 +176,7 @@ class RequestTrace:
         }
         await _write(event)
 
-        if _otel_enabled and _root_span := self._root_span:
+        if _otel_enabled and (_root_span := self._root_span):
             _root_span.add_event(
                 "rbac_rejection",
                 attributes={"tool": tool, "role": role},

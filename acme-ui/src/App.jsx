@@ -86,6 +86,149 @@ function getInitials(name) {
 function truncate(str, n) { return str.length > n ? str.slice(0, n) + '…' : str }
 function timestamp() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
 
+/* ── Markdown renderer ──────────────────────────────────────────────────── */
+function sanitizeText(text) {
+  return text
+    .replace(/\p{Emoji_Presentation}/gu, '')
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+    .replace(/\s*—\s*/g, ': ')
+    .replace(/\s*--\s*/g, ': ')
+    .replace(/#(\d+)/g, '$1')   // #1 → 1 (issue refs)
+    .replace(/#/g, '')           // any remaining stray #
+}
+
+function inlineFormat(raw) {
+  const parts = raw.split(/(\*\*[^*]+\*\*)/)
+  return parts.map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? <strong key={i}>{sanitizeText(p.slice(2, -2))}</strong>
+      : sanitizeText(p)
+  )
+}
+
+function parseTableRow(line) {
+  return line.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
+}
+
+function MarkdownContent({ text }) {
+  const lines = text
+    .replace(/\p{Emoji_Presentation}/gu, '')
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+    .replace(/\s*—\s*/g, ': ')
+    .replace(/\s*--\s*/g, ': ')
+    .split('\n')
+  const elements = []
+  let i = 0
+
+  while (i < lines.length) {
+    const line = lines[i]
+    const trimmed = line.trim()
+
+    // H1
+    if (/^# /.test(line)) {
+      elements.push(<h1 key={elements.length} className="md-h1">{inlineFormat(line.slice(2))}</h1>)
+      i++; continue
+    }
+
+    // H2
+    if (/^## /.test(line)) {
+      elements.push(<h2 key={elements.length} className="md-h2">{inlineFormat(line.slice(3))}</h2>)
+      i++; continue
+    }
+
+    // H3
+    if (/^### /.test(line)) {
+      elements.push(<h3 key={elements.length} className="md-h3">{inlineFormat(line.slice(4))}</h3>)
+      i++; continue
+    }
+
+    // Horizontal rule
+    if (/^---+$/.test(trimmed)) {
+      elements.push(<hr key={elements.length} className="md-hr" />)
+      i++; continue
+    }
+
+    // Pipe table: header row followed by separator
+    if (line.startsWith('|') && i + 1 < lines.length && /^\|[-| :]+\|/.test(lines[i + 1])) {
+      const headers = parseTableRow(line)
+      i += 2
+      const rows = []
+      while (i < lines.length && lines[i].startsWith('|')) {
+        rows.push(parseTableRow(lines[i]))
+        i++
+      }
+      elements.push(
+        <table key={elements.length} className="md-table">
+          <thead><tr>{headers.map((h, j) => <th key={j}>{inlineFormat(h)}</th>)}</tr></thead>
+          <tbody>{rows.map((row, r) => (
+            <tr key={r}>{row.map((cell, j) => <td key={j}>{inlineFormat(cell)}</td>)}</tr>
+          ))}</tbody>
+        </table>
+      )
+      continue
+    }
+
+    // Blockquote
+    if (line.startsWith('> ')) {
+      const bqLines = []
+      while (i < lines.length && lines[i].startsWith('> ')) {
+        bqLines.push(lines[i].slice(2))
+        i++
+      }
+      elements.push(
+        <blockquote key={elements.length} className="md-blockquote">
+          {bqLines.map((l, j) => <p key={j} className="md-p">{inlineFormat(l)}</p>)}
+        </blockquote>
+      )
+      continue
+    }
+
+    // Numbered list — skip blank lines between items to keep one <ol>
+    if (/^\d+\. /.test(line)) {
+      const items = []
+      let counter = 1
+      while (i < lines.length) {
+        if (/^\d+\. /.test(lines[i])) {
+          items.push(<li key={i} value={counter++}>{inlineFormat(lines[i].replace(/^\d+\. /, ''))}</li>)
+          i++
+        } else if (lines[i].trim() === '' && i + 1 < lines.length && /^\d+\. /.test(lines[i + 1])) {
+          i++ // skip blank line between numbered items
+        } else {
+          break
+        }
+      }
+      elements.push(<ol key={elements.length} className="md-list">{items}</ol>)
+      continue
+    }
+
+    // Unordered list — skip blank lines between items to keep one <ul>
+    if (/^[-*] /.test(line)) {
+      const items = []
+      while (i < lines.length) {
+        if (/^[-*] /.test(lines[i])) {
+          items.push(<li key={i}>{inlineFormat(lines[i].slice(2))}</li>)
+          i++
+        } else if (lines[i].trim() === '' && i + 1 < lines.length && /^[-*] /.test(lines[i + 1])) {
+          i++
+        } else {
+          break
+        }
+      }
+      elements.push(<ul key={elements.length} className="md-list">{items}</ul>)
+      continue
+    }
+
+    // Empty line
+    if (trimmed === '') { i++; continue }
+
+    // Paragraph
+    elements.push(<p key={elements.length} className="md-p">{inlineFormat(line)}</p>)
+    i++
+  }
+
+  return <div className="md-content">{elements}</div>
+}
+
 /* ── Icons ──────────────────────────────────────────────────────────────── */
 function SendIcon() {
   return (
@@ -419,9 +562,12 @@ function ChatApp({ token, user, onSignOut }) {
                 <div key={i} className={`message ${msg.role}`}>
                   {msg.role === 'assistant' && <AssistantAvatar />}
                   <div className={`bubble${msg.isError ? ' bubble-error' : ''}`}>
-                    {msg.text.split('\n').map((line, j, arr) => (
-                      <span key={j}>{line}{j < arr.length - 1 && <br />}</span>
-                    ))}
+                    {msg.role === 'assistant'
+                      ? <MarkdownContent text={msg.text} />
+                      : msg.text.split('\n').map((line, j, arr) => (
+                          <span key={j}>{line}{j < arr.length - 1 && <br />}</span>
+                        ))
+                    }
                     {msg.trace && <div className="bubble-trace">trace {msg.trace}</div>}
                   </div>
                 </div>

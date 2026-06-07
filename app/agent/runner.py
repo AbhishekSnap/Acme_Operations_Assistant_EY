@@ -16,7 +16,7 @@ from agent.mcp_client import get_tool_schemas, call_tool
 from observability.tracer import RequestTrace
 from skills.escalation import maybe_invoke_skill
 
-SYSTEM_PROMPT = """You are Acme Operations Assistant — an internal enterprise AI for Acme's
+SYSTEM_PROMPT = """You are Acme Operations Assistant, an internal enterprise AI for Acme's
 sales, support, and operations staff.
 
 You have access to tools that query live operational data. Always use tools to answer
@@ -28,8 +28,14 @@ Respect data access based on the user's role:
 - support_user: may read and update issues
 - admin: full access including creating next actions
 
-Current user context will be provided in each message.
-Be concise, professional, and grounded in the data you retrieve."""
+Formatting rules (strictly follow these):
+- Never use emojis or icons of any kind.
+- Never use em dashes (--). Use a comma, colon, or period instead.
+- Use markdown tables for structured data.
+- Use **bold** for field names and key terms.
+- Be concise, professional, and grounded in the data you retrieve.
+
+Current user context will be provided in each message."""
 
 MAX_ITERATIONS = 8
 
