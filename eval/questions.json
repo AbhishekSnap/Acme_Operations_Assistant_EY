@@ -1,0 +1,102 @@
+[
+  {
+    "id": "Q01",
+    "query": "What is the profile of TechCorp?",
+    "user": "alice",
+    "role": "sales_user",
+    "expected_tools": ["get_customer_profile"],
+    "expected_data_grounding": ["TechCorp", "enterprise", "alice@techcorp.com"],
+    "should_allow": true,
+    "description": "Basic customer profile lookup — sales_user read access"
+  },
+  {
+    "id": "Q02",
+    "query": "Show me all open issues for FinServe Group.",
+    "user": "alice",
+    "role": "sales_user",
+    "expected_tools": ["get_open_issues"],
+    "expected_data_grounding": ["Compliance report", "Data retention"],
+    "should_allow": true,
+    "description": "Open issues for a customer — sales_user read access"
+  },
+  {
+    "id": "Q03",
+    "query": "Summarise the history of issue 1.",
+    "user": "bob",
+    "role": "support_user",
+    "expected_tools": ["summarise_issue"],
+    "expected_data_grounding": ["rate limit", "throttle", "gateway"],
+    "should_allow": true,
+    "description": "Issue history summary — support_user access"
+  },
+  {
+    "id": "Q04",
+    "query": "Create a next action for issue 4: assign an engineer to fix the dashboard widgets by 2025-06-01.",
+    "user": "carol",
+    "role": "admin",
+    "expected_tools": ["create_next_action"],
+    "expected_data_grounding": ["issue_id", "action", "assigned_to"],
+    "should_allow": true,
+    "description": "Create next action — admin access"
+  },
+  {
+    "id": "Q05",
+    "query": "Create a next action for issue 3: send RetailMax a detailed fix plan by 2025-06-01.",
+    "user": "alice",
+    "role": "sales_user",
+    "expected_tools": ["create_next_action"],
+    "expected_data_grounding": [],
+    "should_allow": false,
+    "description": "RBAC enforcement — sales_user cannot create next actions"
+  },
+  {
+    "id": "Q06",
+    "query": "Give me an escalation brief for TechCorp.",
+    "user": "carol",
+    "role": "admin",
+    "expected_tools": ["get_customer_profile", "get_open_issues"],
+    "expected_data_grounding": ["TechCorp", "API rate limiting", "SSO"],
+    "should_allow": true,
+    "description": "Escalation summary skill — multi-tool workflow"
+  },
+  {
+    "id": "Q07",
+    "query": "What are the recommended next actions for issue 1?",
+    "user": "bob",
+    "role": "support_user",
+    "expected_tools": ["summarise_issue"],
+    "expected_data_grounding": ["Deploy rate-limit patch", "Notify TechCorp"],
+    "should_allow": true,
+    "description": "Next actions via issue summary — support_user"
+  },
+  {
+    "id": "Q08",
+    "query": "List all customers with critical issues.",
+    "user": "bob",
+    "role": "support_user",
+    "expected_tools": ["get_open_issues"],
+    "expected_data_grounding": ["TechCorp", "FinServe"],
+    "should_allow": true,
+    "description": "Multi-customer reasoning via tool calls"
+  },
+  {
+    "id": "Q09",
+    "query": "What is the weather in London today?",
+    "user": "alice",
+    "role": "sales_user",
+    "expected_tools": [],
+    "expected_data_grounding": [],
+    "should_allow": true,
+    "description": "Out-of-scope query — agent should decline gracefully without hallucinating"
+  },
+  {
+    "id": "Q10",
+    "query": "Get me the profile for a customer called Emma Davis and then summarise her open issue.",
+    "user": "bob",
+    "role": "support_user",
+    "expected_tools": ["get_customer_profile", "get_open_issues", "summarise_issue"],
+    "expected_data_grounding": ["Emma Davis", "HealthPlus", "dashboard"],
+    "should_allow": true,
+    "description": "Multi-step chained tool use"
+  }
+]

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- TITLE -->
+    <mxCell id="title" value="Acme Operations — Agentic Enterprise Assistant" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+      <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== LAYER LABELS ==================== -->
+    <mxCell id="lbl_client" value="CLIENT LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#666666;rotation=-90;" vertex="1" parent="1">
+      <mxGeometry x="30" y="100" width="120" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="lbl_auth" value="AUTH LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#666666;rotation=-90;" vertex="1" parent="1">
+      <mxGeometry x="30" y="260" width="120" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="lbl_api" value="API LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#666666;rotation=-90;" vertex="1" parent="1">
+      <mxGeometry x="30" y="430" width="120" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="lbl_agent" value="AGENT LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#666666;rotation=-90;" vertex="1" parent="1">
+      <mxGeometry x="30" y="620" width="120" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="lbl_mcp" value="MCP LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#666666;rotation=-90;" vertex="1" parent="1">
+      <mxGeometry x="30" y="820" width="120" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="lbl_data" value="DATA LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#666666;rotation=-90;" vertex="1" parent="1">
+      <mxGeometry x="30" y="1010" width="120" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== CLIENT LAYER ==================== -->
+    <mxCell id="bg_client" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=30;" vertex="1" parent="1">
+      <mxGeometry x="80" y="80" width="1500" height="120" as="geometry" />
+    </mxCell>
+
+    <!-- Streamlit UI -->
+    <mxCell id="streamlit" value="&lt;b&gt;Streamlit UI&lt;/b&gt;&lt;br&gt;Chat interface&lt;br&gt;Login / Logout&lt;br&gt;Shows agent responses" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="200" y="100" width="200" height="80" as="geometry" />
+    </mxCell>
+
+    <!-- User -->
+    <mxCell id="user" value="&lt;b&gt;Internal User&lt;/b&gt;&lt;br&gt;Sales / Support / Admin" style="shape=mxgraph.general.person;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="870" y="90" width="60" height="80" as="geometry" />
+    </mxCell>
+
+    <!-- User to Streamlit -->
+    <mxCell id="e_user_ui" value="types query" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#333333;" edge="1" source="user" target="streamlit" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== AUTH LAYER ==================== -->
+    <mxCell id="bg_auth" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;opacity=30;" vertex="1" parent="1">
+      <mxGeometry x="80" y="220" width="1500" height="140" as="geometry" />
+    </mxCell>
+
+    <!-- Keycloak -->
+    <mxCell id="keycloak" value="&lt;b&gt;Keycloak 24&lt;/b&gt;&lt;br&gt;Realm: acme&lt;br&gt;Roles: sales_user&lt;br&gt;support_user / admin&lt;br&gt;Issues JWT tokens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="200" y="240" width="200" height="100" as="geometry" />
+    </mxCell>
+
+    <!-- JWT Token box -->
+    <mxCell id="jwt" value="&lt;b&gt;JWT Token&lt;/b&gt;&lt;br&gt;{ username, role,&lt;br&gt;expiry, signature }" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="500" y="255" width="180" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Streamlit to Keycloak -->
+    <mxCell id="e_ui_kc" value="1. redirect to login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;dashed=1;" edge="1" source="streamlit" target="keycloak" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Keycloak to JWT -->
+    <mxCell id="e_kc_jwt" value="2. issues token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;" edge="1" source="keycloak" target="jwt" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- JWT to Streamlit (return) -->
+    <mxCell id="e_jwt_ui" value="3. token stored in session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="jwt" target="streamlit" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== API LAYER ==================== -->
+    <mxCell id="bg_api" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=30;" vertex="1" parent="1">
+      <mxGeometry x="80" y="380" width="1500" height="150" as="geometry" />
+    </mxCell>
+
+    <!-- FastAPI -->
+    <mxCell id="fastapi" value="&lt;b&gt;FastAPI&lt;/b&gt;&lt;br&gt;POST /query&lt;br&gt;POST /skill/escalation-summary&lt;br&gt;GET /health" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="200" y="400" width="200" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- JWT Middleware -->
+    <mxCell id="middleware" value="&lt;b&gt;JWT Middleware&lt;/b&gt;&lt;br&gt;Validates token&lt;br&gt;Extracts role&lt;br&gt;Rejects if invalid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="480" y="400" width="180" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- RBAC check -->
+    <mxCell id="rbac" value="&lt;b&gt;RBAC Check&lt;/b&gt;&lt;br&gt;sales → read only&lt;br&gt;support → read+update&lt;br&gt;admin → full access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="740" y="400" width="180" height="90" as="geometry" />
+    </mxCell>
+
+    <!-- Streamlit to FastAPI -->
+    <mxCell id="e_ui_api" value="4. query + JWT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82b366;" edge="1" source="streamlit" target="fastapi" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- FastAPI to Middleware -->
+    <mxCell id="e_api_mw" value="5. validate token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82b366;" edge="1" source="fastapi" target="middleware" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Middleware to RBAC -->
+    <mxCell id="e_mw_rbac" value="6. extract role" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82b366;" edge="1" source="middleware" target="rbac" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== AGENT LAYER ==================== -->
+    <mxCell id="bg_agent" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;opacity=30;" vertex="1" parent="1">
+      <mxGeometry x="80" y="550" width="1500" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- Agent Loop -->
+    <mxCell id="agent" value="&lt;b&gt;Python Agent Loop&lt;/b&gt;&lt;br&gt;Sends query + tools to LLM&lt;br&gt;Executes tool calls&lt;br&gt;Feeds results back&lt;br&gt;Loops until final answer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="200" y="575" width="200" height="110" as="geometry" />
+    </mxCell>
+
+    <!-- LiteLLM -->
+    <mxCell id="litellm" value="&lt;b&gt;LiteLLM&lt;/b&gt;&lt;br&gt;Model agnostic layer&lt;br&gt;model=claude-sonnet-4-6&lt;br&gt;(swap to GPT-4o anytime)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="480" y="575" width="180" height="110" as="geometry" />
+    </mxCell>
+
+    <!-- Claude -->
+    <mxCell id="claude" value="&lt;b&gt;Claude Sonnet 4.6&lt;/b&gt;&lt;br&gt;Reads query + tool list&lt;br&gt;Decides which tools&lt;br&gt;to call and when&lt;br&gt;Writes final answer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="740" y="575" width="180" height="110" as="geometry" />
+    </mxCell>
+
+    <!-- Escalation Skill -->
+    <mxCell id="skill" value="&lt;b&gt;Escalation Summary Skill&lt;/b&gt;&lt;br&gt;Fixed 5-step workflow&lt;br&gt;1. get_customer_profile&lt;br&gt;2. get_open_issues&lt;br&gt;3. summarize_history (each)&lt;br&gt;4. rank by severity&lt;br&gt;5. structured summary" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1000" y="555" width="200" height="150" as="geometry" />
+    </mxCell>
+
+    <!-- RBAC to Agent -->
+    <mxCell id="e_rbac_agent" value="7. query + role" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9673a6;" edge="1" source="rbac" target="agent" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Agent to LiteLLM -->
+    <mxCell id="e_agent_llm" value="8. messages + tools" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9673a6;" edge="1" source="agent" target="litellm" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- LiteLLM to Claude -->
+    <mxCell id="e_llm_claude" value="9. API call" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9673a6;" edge="1" source="litellm" target="claude" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Agent to Skill -->
+    <mxCell id="e_agent_skill" value="escalation query" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" source="agent" target="skill" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== MCP LAYER ==================== -->
+    <mxCell id="bg_mcp" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;opacity=20;" vertex="1" parent="1">
+      <mxGeometry x="80" y="770" width="1500" height="170" as="geometry" />
+    </mxCell>
+
+    <!-- MCP Server -->
+    <mxCell id="mcp_server" value="&lt;b&gt;FastMCP Server&lt;/b&gt;&lt;br&gt;Custom Acme tools&lt;br&gt;Port 8001&lt;br&gt;All tool logic lives here&lt;br&gt;RBAC enforced per tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="200" y="795" width="200" height="110" as="geometry" />
+    </mxCell>
+
+    <!-- Tool 1 -->
+    <mxCell id="t1" value="&lt;b&gt;get_customer_profile&lt;/b&gt;&lt;br&gt;Input: customer_name&lt;br&gt;Returns: profile data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="480" y="790" width="180" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Tool 2 -->
+    <mxCell id="t2" value="&lt;b&gt;get_open_issues&lt;/b&gt;&lt;br&gt;Input: customer_id&lt;br&gt;Returns: open issues list" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="680" y="790" width="180" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Tool 3 -->
+    <mxCell id="t3" value="&lt;b&gt;summarize_issue_history&lt;/b&gt;&lt;br&gt;Input: issue_id&lt;br&gt;Returns: chronological history" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="880" y="790" width="200" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Tool 4 -->
+    <mxCell id="t4" value="&lt;b&gt;create_next_action&lt;/b&gt;&lt;br&gt;Input: issue_id, recommendation&lt;br&gt;Admin only — writes to DB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1100" y="790" width="200" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- Agent to MCP -->
+    <mxCell id="e_agent_mcp" value="10. tool call over HTTP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;" edge="1" source="agent" target="mcp_server" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- MCP to Tools -->
+    <mxCell id="e_mcp_t1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;" edge="1" source="mcp_server" target="t1" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_mcp_t2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;" edge="1" source="mcp_server" target="t2" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_mcp_t3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;" edge="1" source="mcp_server" target="t3" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_mcp_t4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;" edge="1" source="mcp_server" target="t4" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Tool descriptions (below tools) -->
+    <mxCell id="t1_sub" value="all roles" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="480" y="860" width="180" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="t2_sub" value="all roles" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="680" y="860" width="180" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="t3_sub" value="all roles" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+      <mxGeometry x="880" y="860" width="200" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="t4_sub" value="admin only" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1100" y="860" width="200" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== DATA LAYER ==================== -->
+    <mxCell id="bg_data" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;opacity=30;" vertex="1" parent="1">
+      <mxGeometry x="80" y="960" width="1500" height="160" as="geometry" />
+    </mxCell>
+
+    <!-- PostgreSQL -->
+    <mxCell id="postgres" value="&lt;b&gt;PostgreSQL 16&lt;/b&gt;&lt;br&gt;customers&lt;br&gt;issues&lt;br&gt;issue_updates&lt;br&gt;next_actions&lt;br&gt;user_roles" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="250" y="975" width="160" height="120" as="geometry" />
+    </mxCell>
+
+    <!-- Redis -->
+    <mxCell id="redis" value="&lt;b&gt;Redis 7&lt;/b&gt;&lt;br&gt;Session memory (TTL 30m)&lt;br&gt;Profile cache (TTL 5m)&lt;br&gt;Tool call cache" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="530" y="975" width="160" height="120" as="geometry" />
+    </mxCell>
+
+    <!-- Tools to Postgres -->
+    <mxCell id="e_t1_pg" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6c8ebf;" edge="1" source="t1" target="postgres" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_t2_pg" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6c8ebf;" edge="1" source="t2" target="postgres" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_t3_pg" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6c8ebf;" edge="1" source="t3" target="postgres" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_t4_pg" value="write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;" edge="1" source="t4" target="postgres" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Agent to Redis -->
+    <mxCell id="e_agent_redis" value="session memory" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" source="agent" target="redis" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Tool 1 to Redis (cache) -->
+    <mxCell id="e_t1_redis" value="cache profile" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#d6b656;dashed=1;" edge="1" source="t1" target="redis" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== OBSERVABILITY ==================== -->
+    <mxCell id="bg_obs" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;opacity=20;" vertex="1" parent="1">
+      <mxGeometry x="1350" y="550" width="220" height="580" as="geometry" />
+    </mxCell>
+
+    <mxCell id="obs_title" value="OBSERVABILITY" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="1350" y="555" width="220" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- Phoenix -->
+    <mxCell id="phoenix" value="&lt;b&gt;Arize Phoenix&lt;/b&gt;&lt;br&gt;localhost:6006&lt;br&gt;&lt;br&gt;• LLM call traces&lt;br&gt;• Tool call logs&lt;br&gt;• Latency per step&lt;br&gt;• RBAC rejections&lt;br&gt;• Full request trace&lt;br&gt;• Eval results&lt;br&gt;• Session history" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="1370" y="585" width="180" height="220" as="geometry" />
+    </mxCell>
+
+    <!-- Eval Set -->
+    <mxCell id="evalset" value="&lt;b&gt;Eval Set (10 tests)&lt;/b&gt;&lt;br&gt;• Tool selection&lt;br&gt;• Data grounding&lt;br&gt;• RBAC enforcement&lt;br&gt;• Skill quality&lt;br&gt;• Edge cases" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="1370" y="830" width="180" height="130" as="geometry" />
+    </mxCell>
+
+    <!-- Traces from FastAPI -->
+    <mxCell id="e_api_obs" value="OTEL spans" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" source="fastapi" target="phoenix" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Traces from Agent -->
+    <mxCell id="e_agent_obs" value="tool traces" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" source="agent" target="phoenix" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Traces from LiteLLM -->
+    <mxCell id="e_llm_obs" value="LLM traces" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" source="litellm" target="phoenix" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== DOCKER COMPOSE BORDER ==================== -->
+    <mxCell id="docker_border" value="&lt;b&gt;docker compose up&lt;/b&gt; — 7 services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#1a1a2e;strokeWidth=3;dashed=1;dashPattern=8 4;fontSize=14;fontStyle=1;verticalAlign=top;align=right;" vertex="1" parent="1">
+      <mxGeometry x="70" y="70" width="1560" height="1070" as="geometry" />
+    </mxCell>
+
+    <!-- ==================== LEGEND ==================== -->
+    <mxCell id="legend_title" value="&lt;b&gt;LEGEND&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="100" y="1150" width="100" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="leg1" value="Admin only action" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="220" y="1148" width="130" height="24" as="geometry" />
+    </mxCell>
+    <mxCell id="leg2" value="All roles allowed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="370" y="1148" width="130" height="24" as="geometry" />
+    </mxCell>
+    <mxCell id="leg3" value="Observability trace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="520" y="1148" width="130" height="24" as="geometry" />
+    </mxCell>
+    <mxCell id="leg4" value="Escalation Skill path" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b85450;dashed=1;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="670" y="1148" width="140" height="24" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>

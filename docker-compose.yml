@@ -1,0 +1,140 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: acme-postgres
+    environment:
+      POSTGRES_DB: acmedb
+      POSTGRES_USER: acme
+      POSTGRES_PASSWORD: acmesecret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - acme-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acme -d acmedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: acme-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - acme-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: acme-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-file
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+    command: >
+      start-dev
+      --import-realm
+    volumes:
+      - ./infra/keycloak/acme-realm.json:/opt/keycloak/data/import/acme-realm.json
+    ports:
+      - "8080:8080"
+    networks:
+      - acme-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/realms/acme || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  mcp-server:
+    build:
+      context: ./mcp_server
+      dockerfile: Dockerfile
+    container_name: acme-mcp
+    environment:
+      DATABASE_URL: postgresql://acme:acmesecret@postgres:5432/acmedb
+    ports:
+      - "8001:8001"
+    networks:
+      - acme-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: acme-phoenix
+    ports:
+      - "6006:6006"
+    networks:
+      - acme-net
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: acme-app
+    environment:
+      DATABASE_URL: postgresql://acme:acmesecret@postgres:5432/acmedb
+      REDIS_URL: redis://redis:6379
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: acme
+      KEYCLOAK_CLIENT_ID: acme-app
+      KEYCLOAK_CLIENT_SECRET: acme-app-secret
+      MCP_SERVER_URL: http://mcp-server:8001
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      LOG_DIR: /app/logs
+      PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    networks:
+      - acme-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      mcp-server:
+        condition: service_started
+      phoenix:
+        condition: service_started
+
+  ui:
+    build:
+      context: ./acme-ui
+      dockerfile: Dockerfile
+      args:
+        # Empty string = same-origin via nginx proxy (nginx forwards to app:8000 internally)
+        VITE_API_BASE: ""
+    container_name: acme-ui
+    ports:
+      - "3000:3000"
+    networks:
+      - acme-net
+    depends_on:
+      app:
+        condition: service_started
+
+networks:
+  acme-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
