@@ -15,7 +15,7 @@ docker compose up --build
 The app is available at **http://localhost:8000**.  
 Keycloak admin console: **http://localhost:8080** (admin / admin).
 
-Demo users (password: `password`):
+Demo users (password: `Acme@2026!`):
 
 | Username | Role | Permissions |
 |---|---|---|
@@ -128,9 +128,9 @@ introspection round-trip per request.
 | admin | read, update_issue, create_next_action |
 
 RBAC is enforced at two layers:
-1. **Agent system prompt** — tells Claude what the user's role permits
-2. **App layer** — `create_next_action` calls are blocked in `runner.py` if the
-   user lacks the permission, regardless of what the agent requests
+1. **Agent system prompt** - tells Claude what the user's role permits
+2. **MCP layer** - `update_issue` and `create_next_action` are blocked in the MCP server if the
+   user's role lacks the permission, regardless of what the agent requests
 
 ---
 
@@ -165,6 +165,9 @@ replacing `write_event` with an OTLP span emit.
 ## Evaluation
 
 ```bash
+# Install dependency (one-time)
+pip install httpx
+
 # App must be running first
 python eval/run_eval.py
 # or against Docker:
@@ -252,9 +255,13 @@ This solution was built with **Claude Code** as the primary AI coding assistant.
 │   │   └── acme-realm.json  # Realm import: roles, clients, users
 │   └── postgres/
 │       └── init.sql         # Schema + seed data
-├── frontend/
-│   └── index.html           # Single-file UI
+├── acme-ui/
+│   ├── src/
+│   │   ├── App.jsx          # React UI with dark/light theme and markdown renderer
+│   │   └── App.css          # EY-branded CSS custom properties
+│   └── package.json
 └── eval/
     ├── questions.json        # 10 test questions
-    └── run_eval.py           # Evaluation runner
+    ├── run_eval.py           # Evaluation runner
+    └── eval_results.json     # Latest results (generated)
 ```

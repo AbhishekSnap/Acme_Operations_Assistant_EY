@@ -9,6 +9,7 @@ import os
 from typing import AsyncGenerator
 
 import asyncpg
+from datetime import date
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
@@ -50,6 +51,27 @@ async def tool_get_customer_profile(customer_name: str) -> dict:
         if not row:
             return {"error": f"No customer found matching '{customer_name}'"}
         return dict(row)
+    finally:
+        await conn.close()
+
+
+async def tool_get_all_open_issues() -> dict:
+    conn = await get_conn()
+    try:
+        rows = await conn.fetch(
+            """
+            SELECT i.id, i.title, i.status, i.priority, i.created_at,
+                   c.name AS contact_name, c.company
+            FROM issues i
+            JOIN customers c ON c.id = i.customer_id
+            WHERE i.status IN ('open', 'in_progress')
+            ORDER BY
+              CASE i.priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2
+                              WHEN 'medium' THEN 3 ELSE 4 END,
+              c.company
+            """
+        )
+        return {"issues": [dict(r) for r in rows], "count": len(rows)}
     finally:
         await conn.close()
 
@@ -98,6 +120,48 @@ async def tool_summarise_issue(issue_id: int) -> dict:
         await conn.close()
 
 
+async def tool_update_issue(
+    issue_id: int,
+    status: str | None = None,
+    priority: str | None = None,
+    note: str | None = None,
+    updated_by: str = "system",
+) -> dict:
+    conn = await get_conn()
+    try:
+        issue = await conn.fetchrow("SELECT * FROM issues WHERE id = $1", issue_id)
+        if not issue:
+            return {"error": f"Issue {issue_id} not found"}
+
+        # Build SET clause dynamically from whichever fields were supplied
+        fields, values = [], []
+        if status:
+            fields.append(f"status = ${len(values)+1}")
+            values.append(status)
+        if priority:
+            fields.append(f"priority = ${len(values)+1}")
+            values.append(priority)
+
+        if fields:
+            fields.append("updated_at = NOW()")
+            values.append(issue_id)
+            await conn.execute(
+                f"UPDATE issues SET {', '.join(fields)} WHERE id = ${len(values)}",
+                *values,
+            )
+
+        if note:
+            await conn.execute(
+                "INSERT INTO issue_updates (issue_id, author, note) VALUES ($1, $2, $3)",
+                issue_id, updated_by, note,
+            )
+
+        updated = await conn.fetchrow("SELECT * FROM issues WHERE id = $1", issue_id)
+        return {"updated": dict(updated), "note_added": bool(note)}
+    finally:
+        await conn.close()
+
+
 async def tool_create_next_action(
     issue_id: int, action: str, assigned_to: str, due_date: str, created_by: str
 ) -> dict:
@@ -106,10 +170,10 @@ async def tool_create_next_action(
         row = await conn.fetchrow(
             """
             INSERT INTO next_actions (issue_id, action, assigned_to, due_date, created_by)
-            VALUES ($1, $2, $3, $4::date, $5)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING id, issue_id, action, assigned_to, due_date, status, created_by, created_at
             """,
-            issue_id, action, assigned_to, due_date, created_by,
+            issue_id, action, assigned_to, date.fromisoformat(due_date), created_by,
         )
         return dict(row)
     finally:
@@ -143,6 +207,18 @@ TOOL_REGISTRY = {
             },
         },
     },
+    "get_all_open_issues": {
+        "fn": tool_get_all_open_issues,
+        "schema": {
+            "name": "get_all_open_issues",
+            "description": "Retrieve all open or in-progress issues across every customer, ordered by priority.",
+            "input_schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
     "get_open_issues": {
         "fn": tool_get_open_issues,
         "schema": {
@@ -166,6 +242,24 @@ TOOL_REGISTRY = {
                 "type": "object",
                 "properties": {
                     "issue_id": {"type": "integer", "description": "The numeric issue ID"}
+                },
+                "required": ["issue_id"],
+            },
+        },
+    },
+    "update_issue": {
+        "fn": tool_update_issue,
+        "schema": {
+            "name": "update_issue",
+            "description": "Update the status and/or priority of an issue, and optionally add a progress note. Requires support_user or admin role.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "issue_id":    {"type": "integer", "description": "The numeric issue ID"},
+                    "status":      {"type": "string",  "description": "New status: open | in_progress | resolved | closed"},
+                    "priority":    {"type": "string",  "description": "New priority: critical | high | medium | low"},
+                    "note":        {"type": "string",  "description": "Progress note to append to the issue history"},
+                    "updated_by":  {"type": "string",  "description": "Username of the person making the update"},
                 },
                 "required": ["issue_id"],
             },
@@ -207,7 +301,10 @@ class ToolCallRequest(BaseModel):
     role: str = "sales_user"
 
 
-RESTRICTED_TOOLS = {"create_next_action": {"admin", "support_user"}}
+RESTRICTED_TOOLS = {
+    "update_issue":      {"admin", "support_user"},
+    "create_next_action": {"admin"},
+}
 
 
 @app.post("/tools/call")

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 import Logo from './Logo.jsx'
 
@@ -26,28 +26,6 @@ function persistSavedChats(username, chats) {
   localStorage.setItem(savedChatsKey(username), JSON.stringify(chats))
 }
 
-/* ── Preview mode ───────────────────────────────────────────────────────── */
-const PREVIEW_USER = {
-  username: 'carol',
-  roles: ['admin'],
-  permissions: ['read', 'update_issue', 'create_next_action'],
-}
-
-const MOCK_REPLIES = {
-  'techcorp':   'TechCorp Ltd — Enterprise tier\n\nAccount Manager: Bob Smith · alice@techcorp.com\n\nOpen Issues:\n- API rate limiting causing failures (Critical)\n- SSO integration broken after upgrade (High)',
-  'finserve':   'FinServe Group — 2 open issues\n\n- Compliance report generation error (Critical)\n- Data retention policy misconfigured (High)',
-  'issue 1':    'Issue 1 — API Rate Limiting\n\nStatus: Open · Priority: Critical\n\nHistory:\n- Bob Smith: Escalated to engineering. Root cause is misconfigured throttle limits.\n- Engineering: Bucket set to 100 instead of 1000. Patch on Friday.\n\nNext Action: Deploy rate-limit patch to production gateway by 2025-05-10',
-  'critical':   'Customers with critical open issues:\n\n- TechCorp Ltd — API rate limiting causing failures\n- FinServe Group — Compliance report generation error',
-  'escalation': 'TechCorp Ltd — Escalation Brief\n\n1. Customer Overview\nEnterprise tier · Account Manager: Bob Smith · alice@techcorp.com\n\n2. Active Issues\n- API rate limiting (Critical, 5 days open)\n- SSO integration broken (High, 3 days)\n\n3. Key Risks\n- API failures risk SLA breach within 48 hours\n- SSO blocks all new user onboarding\n\n4. Recommended Actions\n- Deploy rate-limit patch by 2025-05-10\n- Obtain Okta config from client IT by 2025-05-09',
-  'emma':       'Emma Davis — HealthPlus Ltd\n\nTier: Standard · Account Manager: Bob Smith · emma@healthplus.com\n\nOpen Issue: Dashboard widgets not loading (Medium)',
-}
-function mockReply(q) {
-  const ql = q.toLowerCase()
-  for (const [k, v] of Object.entries(MOCK_REPLIES)) {
-    if (ql.includes(k)) return v
-  }
-  return 'Preview mode — try asking about TechCorp, FinServe, issue 1, critical issues, escalation brief, or Emma Davis.'
-}
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 async function apiLogin(username, password) {
@@ -114,8 +92,6 @@ function MarkdownContent({ text }) {
   const lines = text
     .replace(/\p{Emoji_Presentation}/gu, '')
     .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
-    .replace(/\s*—\s*/g, ': ')
-    .replace(/\s*--\s*/g, ': ')
     .split('\n')
   const elements = []
   let i = 0
@@ -229,6 +205,42 @@ function MarkdownContent({ text }) {
   return <div className="md-content">{elements}</div>
 }
 
+/* ── Theme ──────────────────────────────────────────────────────────────── */
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('acme_theme')
+    if (saved) return saved
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('acme_theme', theme)
+  }, [theme])
+  const toggle = useCallback(() => setTheme(t => t === 'dark' ? 'light' : 'dark'), [])
+  return [theme, toggle]
+}
+
+function SunIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  )
+}
+function MoonIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  )
+}
+
 /* ── Icons ──────────────────────────────────────────────────────────────── */
 function SendIcon() {
   return (
@@ -277,7 +289,7 @@ function Typing() {
 /* ══════════════════════════════════════════════════════════════════════════
    LOGIN
 ══════════════════════════════════════════════════════════════════════════ */
-function LoginPage({ onLogin }) {
+function LoginPage({ onLogin, theme, onToggleTheme }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPw,   setShowPw]   = useState(false)
@@ -298,7 +310,10 @@ function LoginPage({ onLogin }) {
   }
 
   return (
-    <div className="login-page">
+    <div className="login-page" style={{ position: 'relative' }}>
+      <button className="login-theme-toggle" onClick={onToggleTheme} title="Toggle theme">
+        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+      </button>
       <div className="login-card">
         <div className="login-logo"><div className="login-logo-icon">A</div></div>
         <div className="login-heading">ACME</div>
@@ -324,12 +339,9 @@ function LoginPage({ onLogin }) {
             </div>
           </div>
           <button type="submit" className="login-submit" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-        <button className="login-preview" onClick={() => onLogin('preview-mode', PREVIEW_USER)} type="button">
-          Continue in preview mode
-        </button>
       </div>
     </div>
   )
@@ -338,13 +350,12 @@ function LoginPage({ onLogin }) {
 /* ══════════════════════════════════════════════════════════════════════════
    CHAT APP
 ══════════════════════════════════════════════════════════════════════════ */
-function ChatApp({ token, user, onSignOut }) {
+function ChatApp({ token, user, onSignOut, theme, onToggleTheme }) {
   const username  = user.username
   const role      = user.roles?.[0] ?? 'sales_user'
   const rc        = roleColour(role)
   const av        = getInitials(username)
   const roleLabel = role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-  const isPreview = token === 'preview-mode'
 
   // Chat sessions: array of { id, title, time, messages[] }
   const [sessions,    setSessions]    = useState(() => loadSavedChats(username))
@@ -357,7 +368,7 @@ function ChatApp({ token, user, onSignOut }) {
 
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
-    if (!isPreview) persistSavedChats(username, sessions)
+    persistSavedChats(username, sessions)
   }, [sessions])
 
   useEffect(() => {
@@ -418,16 +429,6 @@ function ChatApp({ token, user, onSignOut }) {
     setMessages(updated)
     setInputVal('')
     setTyping(true)
-
-    if (isPreview) {
-      setTimeout(() => {
-        setTyping(false)
-        const final = [...updated, { role: 'assistant', text: mockReply(text), trace: null }]
-        setMessages(final)
-        saveSession(final)
-      }, 1000)
-      return
-    }
 
     try {
       const data = await apiChat(token, text)
@@ -534,6 +535,9 @@ function ChatApp({ token, user, onSignOut }) {
               <span className="status-dot" />
               12 open issues &nbsp;·&nbsp; 3 critical
             </div>
+            <button className="theme-toggle" onClick={onToggleTheme} title="Toggle theme">
+              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            </button>
           </div>
         </div>
 
@@ -607,6 +611,7 @@ export default function App() {
     const u = sessionStorage.getItem('acme_user')
     return u ? JSON.parse(u) : null
   })
+  const [theme, toggleTheme] = useTheme()
 
   function handleLogin(newToken, newUser) {
     sessionStorage.setItem('acme_token', newToken)
@@ -620,6 +625,6 @@ export default function App() {
     setToken(null); setUser(null)
   }
 
-  if (!token || !user) return <LoginPage onLogin={handleLogin} />
-  return <ChatApp token={token} user={user} onSignOut={handleSignOut} />
+  if (!token || !user) return <LoginPage onLogin={handleLogin} theme={theme} onToggleTheme={toggleTheme} />
+  return <ChatApp token={token} user={user} onSignOut={handleSignOut} theme={theme} onToggleTheme={toggleTheme} />
 }

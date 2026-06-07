@@ -37,7 +37,7 @@
       "enabled": true,
       "emailVerified": true,
       "requiredActions": [],
-      "credentials": [{"type": "password", "value": "password", "temporary": false}],
+      "credentials": [{"type": "password", "value": "Acme@2026!", "temporary": false}],
       "realmRoles": ["sales_user"]
     },
     {
@@ -48,7 +48,7 @@
       "enabled": true,
       "emailVerified": true,
       "requiredActions": [],
-      "credentials": [{"type": "password", "value": "password", "temporary": false}],
+      "credentials": [{"type": "password", "value": "Acme@2026!", "temporary": false}],
       "realmRoles": ["support_user"]
     },
     {
@@ -59,7 +59,7 @@
       "enabled": true,
       "emailVerified": true,
       "requiredActions": [],
-      "credentials": [{"type": "password", "value": "password", "temporary": false}],
+      "credentials": [{"type": "password", "value": "Acme@2026!", "temporary": false}],
       "realmRoles": ["admin"]
     }
   ]

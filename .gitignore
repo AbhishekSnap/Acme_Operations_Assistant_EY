@@ -32,3 +32,6 @@ Thumbs.db
 # Eval results (generated)
 eval/eval_results.json
 .claude/
+
+# Local demo notes (not for submission)
+demo_questions.txt

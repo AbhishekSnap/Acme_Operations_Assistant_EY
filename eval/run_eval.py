@@ -1,22 +1,33 @@
 #!/usr/bin/env python3
 """
-Evaluation runner — Acme Operations Assistant
+Evaluation runner - Acme Operations Assistant
 Measures:
-  1. Tool selection accuracy   — did the agent call the right tools?
-  2. Data grounding            — does the response contain expected DB values?
-  3. RBAC enforcement          — was access correctly allowed / denied?
-  4. Next action quality       — reasonable content for create_next_action queries
-  5. Response reasonableness   — non-empty, non-hallucinated
+  1. Tool selection accuracy   - did the agent call the right tools?
+  2. Data grounding            - does the response contain expected DB values?
+  3. RBAC enforcement          - was access correctly allowed / denied?
+  4. Next action quality       - reasonable content for create_next_action queries
+  5. Response reasonableness   - non-empty, non-hallucinated
 
 Run:
   python eval/run_eval.py
   python eval/run_eval.py --base-url http://localhost:8000
 """
 import asyncio
+import io
 import json
 import sys
 import httpx
 from pathlib import Path
+
+# Force UTF-8 output so em dashes render correctly in Git Bash / Windows terminals
+if hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+
+GREEN  = "\033[92m"
+RED    = "\033[91m"
+YELLOW = "\033[93m"
+RESET  = "\033[0m"
+BOLD   = "\033[1m"
 
 BASE_URL = "http://localhost:8000"
 if "--base-url" in sys.argv:
@@ -24,7 +35,7 @@ if "--base-url" in sys.argv:
     BASE_URL = sys.argv[idx + 1]
 
 QUESTIONS = json.loads((Path(__file__).parent / "questions.json").read_text())
-USERS = {"alice": "password", "bob": "password", "carol": "password"}
+USERS = {"alice": "Acme@2026!", "bob": "Acme@2026!", "carol": "Acme@2026!"}
 _tokens: dict[str, str] = {}
 
 
@@ -55,7 +66,18 @@ def load_trace_for(trace_id: str, log_dir: str = "./logs") -> list[dict]:
     return events
 
 
+async def clear_session(client: httpx.AsyncClient, username: str) -> None:
+    token = await get_token(client, username)
+    await client.post(
+        f"{BASE_URL}/session/clear",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=10,
+    )
+
+
 async def run_question(client: httpx.AsyncClient, q: dict) -> dict:
+    await clear_session(client, q["user"])
+
     token = await get_token(client, q["user"])
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -76,9 +98,15 @@ async def run_question(client: httpx.AsyncClient, q: dict) -> dict:
         trace_id = data.get("trace_id")
 
     # ── Score 1: RBAC enforcement ──────────────────────────────────────────
+    # HTTP 403 = blocked at route level; or check response text for permission denied
+    permission_denied_in_text = any(
+        phrase in response_text.lower()
+        for phrase in ["permission denied", "cannot create", "not able to", "unable to create", "don't have"]
+    )
+    effectively_blocked = was_blocked or (not q["should_allow"] and permission_denied_in_text)
     rbac_pass = (
-        (q["should_allow"] and not was_blocked) or
-        (not q["should_allow"] and was_blocked)
+        (q["should_allow"] and not effectively_blocked) or
+        (not q["should_allow"] and effectively_blocked)
     )
 
     # ── Score 2: Tool selection ────────────────────────────────────────────
@@ -90,7 +118,7 @@ async def run_question(client: httpx.AsyncClient, q: dict) -> dict:
 
     expected_tools = q.get("expected_tools", [])
     if not expected_tools:
-        # No tools expected (e.g. out-of-scope query) — pass if none called
+        # No tools expected (e.g. out-of-scope query) - pass if none called
         tool_pass = len(called_tools) == 0
         tool_score = 1.0 if tool_pass else 0.0
     else:
@@ -153,23 +181,24 @@ async def run_question(client: httpx.AsyncClient, q: dict) -> dict:
 
 
 def print_result(r: dict):
-    status = "PASS" if r.get("overall_pass") else "FAIL"
+    ok = r.get("overall_pass")
+    status = f"{GREEN}PASS{RESET}" if ok else f"{RED}FAIL{RESET}"
     print(f"  [{r['id']}] {status}  {r['description'][:55]}")
-    if not r.get("overall_pass"):
+    if not ok:
         if not r.get("rbac_pass"):
-            print(f"         RBAC: expected allow={r['should_allow']}, got blocked={r['was_blocked']}")
+            print(f"         {YELLOW}RBAC:{RESET} expected allow={r['should_allow']}, got blocked={r['was_blocked']}")
         if not r.get("tool_pass") and r.get("expected_tools"):
-            print(f"         Tools: expected={r['expected_tools']}, called={r['called_tools']}")
+            print(f"         {YELLOW}Tools:{RESET} expected={r['expected_tools']}, called={r['called_tools']}")
         if not r.get("grounding_pass") and r.get("grounding_misses"):
-            print(f"         Missing grounding: {r['grounding_misses']}")
+            print(f"         {YELLOW}Missing grounding:{RESET} {r['grounding_misses']}")
         if not r.get("na_pass"):
-            print(f"         Next action quality insufficient")
+            print(f"         {YELLOW}Next action quality insufficient{RESET}")
         if not r.get("reasonable"):
-            print(f"         Response too short or empty")
+            print(f"         {YELLOW}Response too short or empty{RESET}")
 
 
 async def main():
-    print(f"\nAcme Operations Assistant — Evaluation")
+    print(f"\nAcme Operations Assistant - Evaluation")
     print(f"Target: {BASE_URL}")
     print("=" * 60)
 
@@ -195,19 +224,19 @@ async def main():
     # Summary
     passed = sum(1 for r in results if r.get("overall_pass"))
     total  = len(results)
+    score_color = GREEN if passed == total else (YELLOW if passed >= total * 0.8 else RED)
     print("\n" + "=" * 60)
-    print(f"Score: {passed}/{total} passed")
+    print(f"{BOLD}Score: {score_color}{passed}/{total} passed{RESET}")
 
     # Category breakdown
     categories = {
-        "RBAC":       [r for r in results if "rbac_pass" in r],
-        "Tool select":[r for r in results if "tool_pass" in r],
-        "Grounding":  [r for r in results if "grounding_pass" in r],
+        "RBAC":        ("rbac_pass",      [r for r in results if "rbac_pass" in r]),
+        "Tool select": ("tool_pass",       [r for r in results if "tool_pass" in r]),
+        "Grounding":   ("grounding_pass",  [r for r in results if "grounding_pass" in r]),
     }
     print("\nBreakdown:")
-    for cat, rs in categories.items():
-        key = cat.lower().replace(" ", "_") + "_pass"
-        cat_pass = sum(1 for r in rs if r.get(key, r.get("rbac_pass")))
+    for cat, (key, rs) in categories.items():
+        cat_pass = sum(1 for r in rs if r.get(key))
         print(f"  {cat:<14} {cat_pass}/{len(rs)}")
 
     # Write results

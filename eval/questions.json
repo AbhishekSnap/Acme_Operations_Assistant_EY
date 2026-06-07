@@ -7,7 +7,7 @@
     "expected_tools": ["get_customer_profile"],
     "expected_data_grounding": ["TechCorp", "enterprise", "alice@techcorp.com"],
     "should_allow": true,
-    "description": "Basic customer profile lookup — sales_user read access"
+    "description": "Basic customer profile lookup - sales_user read access"
   },
   {
     "id": "Q02",
@@ -17,7 +17,7 @@
     "expected_tools": ["get_open_issues"],
     "expected_data_grounding": ["Compliance report", "Data retention"],
     "should_allow": true,
-    "description": "Open issues for a customer — sales_user read access"
+    "description": "Open issues for a customer - sales_user read access"
   },
   {
     "id": "Q03",
@@ -27,7 +27,7 @@
     "expected_tools": ["summarise_issue"],
     "expected_data_grounding": ["rate limit", "throttle", "gateway"],
     "should_allow": true,
-    "description": "Issue history summary — support_user access"
+    "description": "Issue history summary - support_user access"
   },
   {
     "id": "Q04",
@@ -35,9 +35,9 @@
     "user": "carol",
     "role": "admin",
     "expected_tools": ["create_next_action"],
-    "expected_data_grounding": ["issue_id", "action", "assigned_to"],
+    "expected_data_grounding": ["issue id", "action", "assigned to"],
     "should_allow": true,
-    "description": "Create next action — admin access"
+    "description": "Create next action - admin access"
   },
   {
     "id": "Q05",
@@ -47,7 +47,7 @@
     "expected_tools": ["create_next_action"],
     "expected_data_grounding": [],
     "should_allow": false,
-    "description": "RBAC enforcement — sales_user cannot create next actions"
+    "description": "RBAC enforcement - sales_user cannot create next actions"
   },
   {
     "id": "Q06",
@@ -57,7 +57,7 @@
     "expected_tools": ["get_customer_profile", "get_open_issues"],
     "expected_data_grounding": ["TechCorp", "API rate limiting", "SSO"],
     "should_allow": true,
-    "description": "Escalation summary skill — multi-tool workflow"
+    "description": "Escalation summary skill - multi-tool workflow"
   },
   {
     "id": "Q07",
@@ -67,14 +67,14 @@
     "expected_tools": ["summarise_issue"],
     "expected_data_grounding": ["Deploy rate-limit patch", "Notify TechCorp"],
     "should_allow": true,
-    "description": "Next actions via issue summary — support_user"
+    "description": "Next actions via issue summary - support_user"
   },
   {
     "id": "Q08",
     "query": "List all customers with critical issues.",
     "user": "bob",
     "role": "support_user",
-    "expected_tools": ["get_open_issues"],
+    "expected_tools": ["get_all_open_issues"],
     "expected_data_grounding": ["TechCorp", "FinServe"],
     "should_allow": true,
     "description": "Multi-customer reasoning via tool calls"
@@ -87,7 +87,7 @@
     "expected_tools": [],
     "expected_data_grounding": [],
     "should_allow": true,
-    "description": "Out-of-scope query — agent should decline gracefully without hallucinating"
+    "description": "Out-of-scope query - agent should decline gracefully without hallucinating"
   },
   {
     "id": "Q10",

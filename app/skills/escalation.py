@@ -19,7 +19,7 @@ from agent.mcp_client import call_tool
 from observability.tracer import RequestTrace
 
 ESCALATION_KEYWORDS = re.compile(
-    r"\b(escalat|urgent|critical|summar|brief|overview|executive|status report)\w*\b",
+    r"\b(escalat|escalation brief|executive summary|executive brief|status report)\w*\b",
     re.IGNORECASE,
 )
 
@@ -36,11 +36,18 @@ Open issues:
 Issue histories:
 {histories}
 
+Rules:
+- If the customer profile contains an "error" key, state clearly that the customer was not found and stop.
+- If there are no open issues, state "No open issues found for this customer" under Active Issues and omit Key Risks and Recommended Immediate Actions.
+- If any field in the profile is missing or null, note it as "Not recorded" rather than omitting it.
+- Never invent data that is not present above.
+
 Produce a structured escalation brief with these sections:
-1. **Customer Overview** — tier, account manager, contact
-2. **Active Issues** — table: Issue | Priority | Status | Age
-3. **Key Risks** — top 2-3 risks from the open issues
-4. **Recommended Immediate Actions** — bullet list, ordered by priority
+1. **Customer Overview** - tier, account manager, contact
+2. **Active Issues** - table: Issue | Priority | Status | Age (or "No open issues" if none)
+3. **Key Risks** - top 2-3 risks from the open issues (omit section if no issues)
+4. **Recommended Immediate Actions** - bullet list, ordered by priority (omit section if no issues)
+5. **Missing Information** - list any data gaps that would be needed for a complete assessment (omit if none)
 
 Be factual, grounded in the data above, and keep the brief under 400 words."""
 
@@ -49,6 +56,9 @@ async def run_escalation_skill(customer_name: str, user: dict, trace: RequestTra
     # Step 1: customer profile
     profile, p_lat = await call_tool("get_customer_profile", {"customer_name": customer_name})
     await trace.record_tool_call("get_customer_profile", {"customer_name": customer_name}, profile, p_lat)
+
+    if "error" in profile:
+        return f"Could not generate escalation brief: {profile['error']}"
 
     # Step 2: open issues
     issues, i_lat = await call_tool("get_open_issues", {"customer_name": customer_name})
@@ -84,13 +94,16 @@ async def run_escalation_skill(customer_name: str, user: dict, trace: RequestTra
     return response.choices[0].message.content
 
 
+_STRIP_PREFIXES = re.compile(r"^(client|account|customer|the)\s+", re.IGNORECASE)
+
 def _extract_customer(query: str) -> str | None:
     """Simple heuristic: look for 'for <Name>' or 'about <Name>'."""
     m = re.search(r"(?:for|about|on|regarding)\s+([A-Z][a-zA-Z\s]{2,30}?)(?:\s+customer|\s+account|[,.]|$)", query)
     if m:
-        return m.group(1).strip()
+        name = _STRIP_PREFIXES.sub("", m.group(1).strip())
+        return name or None
     # Fallback: capitalised two-word sequence
-    m = re.search(r"\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b", query)
+    m = re.search(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b", query)
     return m.group(1) if m else None
 
 
