@@ -166,6 +166,12 @@ Seven Docker containers on a shared Compose network. The React UI authenticates 
 | **Redis** | 6379 (internal) | Session history (TTL 1h), cached tool results (TTL 2m) |
 | **Claude API** | external | Reasoning engine - selects tools dynamically based on query |
 
+### Design decisions and scalability
+
+LangGraph and LangChain were considered but not used. The agent is implemented as a native tool-use loop: Claude receives tool schemas, returns `tool_use` blocks, results are fed back, and the cycle continues until `end_turn`. This is more transparent and easier to reason about than a compiled state graph. LangGraph earns its complexity when you need branching workflows or parallel agent execution; neither applies here.
+
+The architecture scales to multiple agents without structural change. Any agent can consume the same MCP server - tool definitions and SQL stay in one place. Adding a specialist agent (Analytics, Billing) means pointing it at the same `GET /tools` endpoint. Redis and Keycloak extend automatically since both are stateless. Only the routing logic changes, not the infrastructure.
+
 ### Agent design
 
 The agent uses Claude's native tool-use API directly - no LangChain or LangGraph. The loop:
