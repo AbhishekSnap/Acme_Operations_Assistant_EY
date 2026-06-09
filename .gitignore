@@ -29,8 +29,8 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Eval results (generated)
-eval/eval_results.json
+# Eval results (generated - committed intentionally for submission)
+# eval/eval_results.json
 .claude/
 
 # Local demo notes (not for submission)

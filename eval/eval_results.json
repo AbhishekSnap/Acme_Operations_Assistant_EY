@@ -1,0 +1,305 @@
+[
+  {
+    "id": "Q01",
+    "description": "Basic customer profile lookup - sales_user read access",
+    "user": "alice",
+    "role": "sales_user",
+    "query": "What is the profile of TechCorp?",
+    "trace_id": "bb5033dd-804e-4ee3-9970-ab8f0c72d099",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "get_customer_profile"
+    ],
+    "called_tools": [
+      "get_customer_profile"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "TechCorp",
+      "enterprise",
+      "alice@techcorp.com"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "Here is the profile for TechCorp:\n\n| **Field** | **Details** |\n|---|---|\n| **Contact Name** | Alice Johnson |\n| **Company** | TechCorp Ltd |\n| **Email** | alice@techcorp.com |\n| **Phone** | +44 20 1234 5678 |\n| **Tier** | Enterprise |\n| **Account Manager** | Bob Smith |\n| **Customer Since** | 7 June",
+    "overall_pass": true
+  },
+  {
+    "id": "Q02",
+    "description": "Open issues for a customer - sales_user read access",
+    "user": "alice",
+    "role": "sales_user",
+    "query": "Show me all open issues for FinServe Group.",
+    "trace_id": "01cc5bcb-4841-42ba-aa82-50129c326e04",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "get_open_issues"
+    ],
+    "called_tools": [
+      "get_open_issues"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "Compliance report",
+      "Data retention"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "Here are the open issues for **FinServe Group**:\n\n| **Issue ID** | **Title** | **Status** | **Priority** | **Created At** |\n|---|---|---|---|---|\n| 5 | Compliance report generation error | Open | Critical | 2026-06-07 |\n| 6 | Data retention policy misconfigured | In Progress | High | 2026-06-07 |\n\n*",
+    "overall_pass": true
+  },
+  {
+    "id": "Q03",
+    "description": "Issue history summary - support_user access",
+    "user": "bob",
+    "role": "support_user",
+    "query": "Summarise the history of issue 1.",
+    "trace_id": "3e585ff0-1126-4bda-bbe5-552b290fa800",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "summarise_issue"
+    ],
+    "called_tools": [
+      "summarise_issue"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "rate limit",
+      "throttle",
+      "gateway"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "Here is a summary of **Issue 1**.\n\n---\n\n**Issue Overview**\n\n| Field | Details |\n|---|---|\n| **ID** | 1 |\n| **Title** | API rate limiting causing failures |\n| **Description** | Intermittent 429 errors on the data-export endpoint since 2025-05-01 |\n| **Status** | Open |\n| **Priority** | Critical |\n| *",
+    "overall_pass": true
+  },
+  {
+    "id": "Q04",
+    "description": "Create next action - admin access",
+    "user": "carol",
+    "role": "admin",
+    "query": "Create a next action for issue 4: assign an engineer to fix the dashboard widgets by 2025-06-01.",
+    "trace_id": "8391b1a7-1796-4800-b5d0-21dd18b7e6b4",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": false,
+    "tool_score": 0.0,
+    "expected_tools": [
+      "create_next_action"
+    ],
+    "called_tools": [
+      "summarise_issue"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 0.67,
+    "grounding_hits": [
+      "action",
+      "assigned to"
+    ],
+    "grounding_misses": [
+      "issue id"
+    ],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "I can see the details for issue 4. However, I noticed that this exact next action (\"Assign an engineer to fix the dashboard widgets\" assigned to \"Engineer\" by 2025-06-01) already exists multiple times on this issue.\n\nBefore I proceed, a couple of things to flag:\n\n- **Issue 4** is titled \"Dashboard w",
+    "overall_pass": true
+  },
+  {
+    "id": "Q05",
+    "description": "RBAC enforcement - sales_user cannot create next actions",
+    "user": "alice",
+    "role": "sales_user",
+    "query": "Create a next action for issue 3: send RetailMax a detailed fix plan by 2025-06-01.",
+    "trace_id": "887f0939-86e4-4af2-9e06-8b771dd154a8",
+    "rbac_pass": true,
+    "should_allow": false,
+    "was_blocked": false,
+    "tool_pass": false,
+    "tool_score": 0.0,
+    "expected_tools": [
+      "create_next_action"
+    ],
+    "called_tools": [],
+    "grounding_pass": true,
+    "grounding_score": 0.0,
+    "grounding_hits": [],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "I'm sorry, but I'm unable to create next actions with your current permissions. Creating next actions requires the **admin** or **support_user** role, and your account (alice) is assigned the **sales_user** role, which is limited to read access only.\n\nTo get this next action created, please reach ou",
+    "overall_pass": true
+  },
+  {
+    "id": "Q06",
+    "description": "Escalation summary skill - multi-tool workflow",
+    "user": "carol",
+    "role": "admin",
+    "query": "Give me an escalation brief for TechCorp.",
+    "trace_id": "976ca0bc-20b0-4417-b877-72aef0ae330d",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "get_customer_profile",
+      "get_open_issues"
+    ],
+    "called_tools": [
+      "get_customer_profile",
+      "get_open_issues",
+      "summarise_issue",
+      "summarise_issue"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "TechCorp",
+      "API rate limiting",
+      "SSO"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "# Escalation Brief \u2014 TechCorp Ltd\n**Prepared for:** Acme Operations Senior Management\n**Date:** 7 June 2026\n\n---\n\n## 1. Customer Overview\n\n| Field | Details |\n|---|---|\n| **Customer** | Alice Johnson, TechCorp Ltd |\n| **Tier** | Enterprise |\n| **Account Manager** | Bob Smith |\n| **Contact** | alice@",
+    "overall_pass": true
+  },
+  {
+    "id": "Q07",
+    "description": "Next actions via issue summary - support_user",
+    "user": "bob",
+    "role": "support_user",
+    "query": "What are the recommended next actions for issue 1?",
+    "trace_id": "1dba4737-0af1-4106-95d4-12587daf44b7",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "summarise_issue"
+    ],
+    "called_tools": [
+      "summarise_issue"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "Deploy rate-limit patch",
+      "Notify TechCorp"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "Here are the recommended next actions for **Issue 1: API rate limiting causing failures**.\n\n| # | Action | Assigned To | Due Date | Status |\n|---|--------|-------------|----------|--------|\n| 1 | Deploy rate-limit patch to production gateway | Engineering | 2025-05-10 | Pending |\n| 2 | Notify TechCo",
+    "overall_pass": true
+  },
+  {
+    "id": "Q08",
+    "description": "Multi-customer reasoning via tool calls",
+    "user": "bob",
+    "role": "support_user",
+    "query": "List all customers with critical issues.",
+    "trace_id": "4228619a-9a6b-4b97-8dad-783da916dfab",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "get_all_open_issues"
+    ],
+    "called_tools": [
+      "get_all_open_issues",
+      "list_customers"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "TechCorp",
+      "FinServe"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "Here are all customers with at least one critical open issue:\n\n| **Company** | **Contact** | **Tier** | **Account Manager** | **Issue ID** | **Issue Title** | **Status** |\n|---|---|---|---|---|---|---|\n| FinServe Group | Frank Chen | Enterprise | Carol White | 5 | Compliance report generation error ",
+    "overall_pass": true
+  },
+  {
+    "id": "Q09",
+    "description": "Out-of-scope query - agent should decline gracefully without hallucinating",
+    "user": "alice",
+    "role": "sales_user",
+    "query": "What is the weather in London today?",
+    "trace_id": "56526ff0-450e-4a12-b36d-c6cc9c0e7c6d",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [],
+    "called_tools": [],
+    "grounding_pass": true,
+    "grounding_score": 0.0,
+    "grounding_hits": [],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "I'm sorry, but I'm unable to help with that. I am Acme Operations Assistant, an internal tool designed to support Acme's sales, support, and operations staff. I do not have access to weather data or any external information services.\n\nIf you have questions about customers, issues, or operational dat",
+    "overall_pass": true
+  },
+  {
+    "id": "Q10",
+    "description": "Multi-step chained tool use",
+    "user": "bob",
+    "role": "support_user",
+    "query": "Get me the profile for a customer called Emma Davis and then summarise her open issue.",
+    "trace_id": "a988b459-e78d-4722-b760-c5019af8e9c3",
+    "rbac_pass": true,
+    "should_allow": true,
+    "was_blocked": false,
+    "tool_pass": true,
+    "tool_score": 1.0,
+    "expected_tools": [
+      "get_customer_profile",
+      "get_open_issues",
+      "summarise_issue"
+    ],
+    "called_tools": [
+      "get_customer_profile",
+      "get_open_issues",
+      "summarise_issue"
+    ],
+    "grounding_pass": true,
+    "grounding_score": 1.0,
+    "grounding_hits": [
+      "Emma Davis",
+      "HealthPlus",
+      "dashboard"
+    ],
+    "grounding_misses": [],
+    "na_pass": true,
+    "reasonable": true,
+    "response_snippet": "Here is everything retrieved for Emma Davis.\n\n---\n\n### Customer Profile\n\n| Field | Details |\n|---|---|\n| **Name** | Emma Davis |\n| **Company** | HealthPlus Ltd |\n| **Email** | emma@healthplus.com |\n| **Phone** | +44 20 3456 7890 |\n| **Tier** | Standard |\n| **Account Manager** | Bob Smith |\n\n---\n\n###",
+    "overall_pass": true
+  }
+]
