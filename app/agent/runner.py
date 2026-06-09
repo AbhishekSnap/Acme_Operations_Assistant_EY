@@ -1,5 +1,5 @@
 """
-Agent runner — Claude tool-use loop.
+Agent runner - Claude tool-use loop.
 1. Build messages from session history + current query
 2. Call Claude with available tools (fetched from MCP server)
 3. On tool_use blocks: call MCP, append results, loop

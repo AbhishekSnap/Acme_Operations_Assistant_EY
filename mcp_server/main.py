@@ -1,5 +1,5 @@
 """
-MCP Server — exposes Acme tools over HTTP+SSE (MCP protocol).
+MCP Server - exposes Acme tools over HTTP+SSE (MCP protocol).
 Runs as a separate container; the app container calls it via HTTP.
 Keeping tool definitions here means the agent core has no hard-coded SQL.
 """
@@ -325,7 +325,7 @@ async def call_tool(req: ToolCallRequest):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
-# MCP SSE endpoint — streams tool list then keeps connection alive
+# MCP SSE endpoint - streams tool list then keeps connection alive
 @app.get("/mcp/sse")
 async def mcp_sse(request: Request):
     async def event_stream() -> AsyncGenerator[str, None]:

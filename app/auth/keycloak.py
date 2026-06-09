@@ -1,7 +1,7 @@
 """
 Keycloak JWT validation and RBAC helpers.
 We fetch the realm's public key from Keycloak's JWKS endpoint and verify
-every incoming bearer token locally — no introspection round-trip per request.
+every incoming bearer token locally - no introspection round-trip per request.
 """
 import httpx
 from jose import jwt, JWTError

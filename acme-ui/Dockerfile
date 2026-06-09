@@ -1,4 +1,4 @@
-# Stage 1 — build the React app
+# Stage 1 - build the React app
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -16,13 +16,13 @@ ENV VITE_API_BASE=$VITE_API_BASE
 
 RUN npm run build
 
-# Stage 2 — serve with nginx
+# Stage 2 - serve with nginx
 FROM nginx:alpine
 
 # Copy built assets
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Custom nginx config — serve SPA, proxy /api to backend
+# Custom nginx config - serve SPA, proxy /api to backend
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 3000

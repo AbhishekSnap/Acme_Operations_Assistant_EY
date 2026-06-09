@@ -1,17 +1,17 @@
 /*
   EY COLOUR TOKENS
   ─────────────────────────────────────────
-  EY Yellow          #FFE600   — accent, on dark surfaces
-  EY Confident Black #1A1A24   — sidebar bg
-  EY Off Black       #2E2E38   — text, buttons
-  EY Gray 01         #747480   — muted text
-  EY Gray 02         #C4C4CD   — borders, placeholders
-  EY Off White       #F0F0FA   — page / input bg (light)
-  White              #FFFFFF   — main panel (light)
+  EY Yellow          #FFE600   - accent, on dark surfaces
+  EY Confident Black #1A1A24   - sidebar bg
+  EY Off Black       #2E2E38   - text, buttons
+  EY Gray 01         #747480   - muted text
+  EY Gray 02         #C4C4CD   - borders, placeholders
+  EY Off White       #F0F0FA   - page / input bg (light)
+  White              #FFFFFF   - main panel (light)
 */
 
 /* ══════════════════════════════════════════
-   THEME VARIABLES — LIGHT (default)
+   THEME VARIABLES - LIGHT (default)
 ══════════════════════════════════════════ */
 :root {
   /* Login */
@@ -34,7 +34,7 @@
   --login-error-border:   #fca5a5;
   --login-error-text:     #dc2626;
 
-  /* Sidebar — always dark (EY Confident Black) */
+  /* Sidebar - always dark (EY Confident Black) */
   --sb-bg:        #1A1A24;
   --sb-border:    rgba(255,255,255,0.07);
   --sb-txt:       rgba(255,255,255,0.50);
@@ -92,7 +92,7 @@
 }
 
 /* ══════════════════════════════════════════
-   THEME VARIABLES — DARK
+   THEME VARIABLES - DARK
 ══════════════════════════════════════════ */
 [data-theme="dark"] {
   /* Login */
@@ -259,7 +259,7 @@
 }
 
 /* ══════════════════════════════════════════
-   SIDEBAR — always EY Confident Black
+   SIDEBAR - always EY Confident Black
 ══════════════════════════════════════════ */
 .sidebar {
   width: 200px; min-width: 200px;

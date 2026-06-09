@@ -1,7 +1,7 @@
 """
 Thin HTTP client for the MCP server.
 Fetches tool schemas once at startup; routes tool calls to the MCP container.
-This keeps tool definitions out of the agent core — add a new tool to the
+This keeps tool definitions out of the agent core - add a new tool to the
 MCP server and the agent picks it up automatically on next restart.
 """
 import time

@@ -1,7 +1,7 @@
 """
-Observability — dual output:
-  1. Arize Phoenix via OpenTelemetry (OTLP HTTP) — visual trace viewer at :6006
-  2. JSONL file on disk — backup + eval runner reads tool calls from here
+Observability - dual output:
+  1. Arize Phoenix via OpenTelemetry (OTLP HTTP) - visual trace viewer at :6006
+  2. JSONL file on disk - backup + eval runner reads tool calls from here
 
 Phoenix shows:
   - Every request as a root span
@@ -33,13 +33,13 @@ def setup_phoenix():
     """
     Initialise OTEL tracing to Arize Phoenix.
     Called once at startup. Safe to call even if Phoenix is not running
-    — falls back to JSONL-only mode silently.
+    - falls back to JSONL-only mode silently.
     """
     global _tracer, _otel_enabled
 
     endpoint = os.getenv("PHOENIX_COLLECTOR_ENDPOINT", "")
     if not endpoint:
-        logger.info("PHOENIX_COLLECTOR_ENDPOINT not set — OTEL disabled, using JSONL only")
+        logger.info("PHOENIX_COLLECTOR_ENDPOINT not set - OTEL disabled, using JSONL only")
         return
 
     try:
@@ -63,7 +63,7 @@ def setup_phoenix():
         logger.info(f"Phoenix OTEL tracing enabled → {otlp_endpoint}")
 
     except Exception as e:
-        logger.warning(f"Phoenix OTEL setup failed ({e}) — falling back to JSONL only")
+        logger.warning(f"Phoenix OTEL setup failed ({e}) - falling back to JSONL only")
         _otel_enabled = False
 
 
@@ -111,7 +111,7 @@ class RequestTrace:
     async def record_tool_call(
         self, tool: str, args: dict, result: dict, latency_ms: float
     ):
-        """Record a tool call — OTEL child span + JSONL."""
+        """Record a tool call - OTEL child span + JSONL."""
         event = {
             "trace_id":   self.trace_id,
             "type":       "tool_call",
@@ -137,12 +137,12 @@ class RequestTrace:
                     "tool.latency_ms": round(latency_ms, 1),
                 },
             ):
-                pass  # span closes immediately — latency already measured
+                pass  # span closes immediately - latency already measured
 
     async def record_llm_turn(
         self, role: str, content_summary: str, latency_ms: float
     ):
-        """Record an LLM call — OTEL child span + JSONL."""
+        """Record an LLM call - OTEL child span + JSONL."""
         event = {
             "trace_id":   self.trace_id,
             "type":       "llm_turn",
@@ -183,7 +183,7 @@ class RequestTrace:
             )
 
     async def finish(self, response_summary: str, error: str | None = None):
-        """Close the trace — write summary event and end root OTEL span."""
+        """Close the trace - write summary event and end root OTEL span."""
         total_ms = round((time.monotonic() - self.start) * 1000, 1)
         event = {
             "trace_id":        self.trace_id,

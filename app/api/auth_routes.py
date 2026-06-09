@@ -1,6 +1,6 @@
 """
 Login helper endpoint: exchanges username/password for a Keycloak access token.
-Exists purely for the demo UI — in production, use the Keycloak login page.
+Exists purely for the demo UI - in production, use the Keycloak login page.
 """
 import httpx
 from fastapi import APIRouter, HTTPException

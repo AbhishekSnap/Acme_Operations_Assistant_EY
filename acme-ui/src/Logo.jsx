@@ -1,5 +1,5 @@
 /**
- * Logo.jsx — Acme Operations Assistant logo
+ * Logo.jsx - Acme Operations Assistant logo
  * Three variants: "icon" | "horizontal" | "dark"
  *
  * Usage:
@@ -20,12 +20,12 @@ const WHITE_SUB    = 'rgba(255,255,255,0.3)'
 const SANS         = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 
 /**
- * IconMark — the shared icon element.
+ * IconMark - the shared icon element.
  *
  * Props:
- *   x, y        — top-left origin inside parent SVG
- *   size        — overall size of the square (default 44)
- *   squareFill  — fill colour of the outer rounded rect (default DARK)
+ *   x, y        - top-left origin inside parent SVG
+ *   size        - overall size of the square (default 44)
+ *   squareFill  - fill colour of the outer rounded rect (default DARK)
  */
 function IconMark({ x = 0, y = 0, size = 44, squareFill = DARK }) {
   const rx     = size * 0.18          // corner radius proportional to size
@@ -72,21 +72,21 @@ function IconMark({ x = 0, y = 0, size = 44, squareFill = DARK }) {
         strokeWidth={0.5}
       />
 
-      {/* Row 1 — amber active line */}
+      {/* Row 1 - amber active line */}
       <rect
         x={x + pad} y={bar1Y}
         width={bar1W} height={barH}
         rx={barH / 2}
         fill={AMBER}
       />
-      {/* Row 2 — faint white */}
+      {/* Row 2 - faint white */}
       <rect
         x={x + pad} y={bar2Y}
         width={bar2W} height={barH}
         rx={barH / 2}
         fill={WHITE_MID}
       />
-      {/* Row 3 — faint white, shorter */}
+      {/* Row 3 - faint white, shorter */}
       <rect
         x={x + pad} y={bar3Y}
         width={bar3W} height={barH}
@@ -94,7 +94,7 @@ function IconMark({ x = 0, y = 0, size = 44, squareFill = DARK }) {
         fill={WHITE_MID}
       />
 
-      {/* Circle — bottom right */}
+      {/* Circle - bottom right */}
       <circle cx={circX} cy={circY} r={circR} fill={AMBER_DIM} />
       <circle cx={circX} cy={circY} r={circR} fill="none" stroke={AMBER} strokeWidth={0.5} />
 
@@ -115,7 +115,7 @@ function IconMark({ x = 0, y = 0, size = 44, squareFill = DARK }) {
    VARIANTS
 ══════════════════════════════════════════════════════════════════════════ */
 
-/** Standalone icon — 72×72 */
+/** Standalone icon - 72×72 */
 function IconVariant() {
   return (
     <svg width={72} height={72} viewBox="0 0 72 72" fill="none"
@@ -125,7 +125,7 @@ function IconVariant() {
   )
 }
 
-/** Horizontal lockup — icon left, text right, transparent bg */
+/** Horizontal lockup - icon left, text right, transparent bg */
 function HorizontalVariant() {
   const iconSize  = 44
   const gap       = 14
@@ -173,7 +173,7 @@ function HorizontalVariant() {
 }
 
 /**
- * Dark sidebar lockup — no background rect, no border, no live badge.
+ * Dark sidebar lockup - no background rect, no border, no live badge.
  * Floats directly on the dark sidebar. Icon + ACME + subtitle only.
  */
 function DarkVariant({ width = 200 }) {
@@ -186,7 +186,7 @@ function DarkVariant({ width = 200 }) {
          fill="none" xmlns="http://www.w3.org/2000/svg" role="img"
          aria-label="Acme Operations Assistant">
 
-      {/* Icon mark — DARK_INNER square on dark sidebar */}
+      {/* Icon mark - DARK_INNER square on dark sidebar */}
       <IconMark x={0} y={(height - iconSize) / 2} size={iconSize} squareFill={DARK_INNER} />
 
       {/* ACME wordmark */}

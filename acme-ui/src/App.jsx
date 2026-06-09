@@ -69,7 +69,7 @@ function sanitizeText(text) {
   return text
     .replace(/\p{Emoji_Presentation}/gu, '')
     .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
-    .replace(/\s*—\s*/g, ': ')
+    .replace(/\s*\u2014\s*/g, ': ')
     .replace(/\s*--\s*/g, ': ')
     .replace(/#(\d+)/g, '$1')   // #1 → 1 (issue refs)
     .replace(/#/g, '')           // any remaining stray #
@@ -159,7 +159,7 @@ function MarkdownContent({ text }) {
       continue
     }
 
-    // Numbered list — skip blank lines between items to keep one <ol>
+    // Numbered list - skip blank lines between items to keep one <ol>
     if (/^\d+\. /.test(line)) {
       const items = []
       let counter = 1
@@ -177,7 +177,7 @@ function MarkdownContent({ text }) {
       continue
     }
 
-    // Unordered list — skip blank lines between items to keep one <ul>
+    // Unordered list - skip blank lines between items to keep one <ul>
     if (/^[-*] /.test(line)) {
       const items = []
       while (i < lines.length) {

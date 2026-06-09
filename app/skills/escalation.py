@@ -1,7 +1,7 @@
 """
 Customer Escalation Summary Skill.
 
-A Skill is a reusable, structured LLM workflow — distinct from a single prompt call.
+A Skill is a reusable, structured LLM workflow - distinct from a single prompt call.
 This one:
   1. Detects escalation intent in the user query
   2. Fetches customer profile + open issues via MCP tools

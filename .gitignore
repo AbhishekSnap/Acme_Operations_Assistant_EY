@@ -34,4 +34,7 @@ eval/eval_results.json
 .claude/
 
 # Local demo notes (not for submission)
-demo_questions.txt
+DEMO_GUIDE.txt
+panel_qa.txt
+tmp_*.md
+reset_demo.sh
