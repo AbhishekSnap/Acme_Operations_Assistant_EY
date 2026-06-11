@@ -34,7 +34,6 @@ Thumbs.db
 .claude/
 
 # Local demo notes (not for submission)
-DEMO_GUIDE.txt
 panel_qa.txt
 tmp_*.md
 reset_demo.sh

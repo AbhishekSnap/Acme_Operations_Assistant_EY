@@ -1,0 +1,257 @@
+================================================================================
+ACME OPERATIONS ASSISTANT - DEMO GUIDE
+================================================================================
+
+OVERVIEW
+--------
+Acme Operations Assistant is an agentic AI assistant for internal staff to query
+customer and issue data in natural language. It uses Claude's tool-use loop,
+enforces role-based access control at two layers (app + MCP), and supports
+multi-step reasoning over structured operational data.
+
+--------------------------------------------------------------------------------
+STARTING THE APPLICATION
+--------------------------------------------------------------------------------
+
+Prerequisites: Docker Desktop running, ANTHROPIC_API_KEY set in .env
+
+  1. Create .env in the project root:
+       ANTHROPIC_API_KEY=sk-ant-<your-key>
+
+  2. Build images (if not already done):
+       docker compose build
+
+  3. Start the full stack:
+       docker compose up -d
+
+  4. Wait approximately 2-3 minutes for Keycloak to finish initialising.
+     Monitor with:
+       docker compose logs -f keycloak
+
+  5. Confirm all services are healthy:
+       docker compose ps
+
+Service URLs:
+  - UI:        http://localhost:3000
+  - API:       http://localhost:8000
+  - Keycloak:  http://localhost:8080
+  - Phoenix:   http://localhost:6006   (observability/traces)
+
+To stop:
+  docker compose down
+
+--------------------------------------------------------------------------------
+LOGIN CREDENTIALS
+--------------------------------------------------------------------------------
+
+  Username    Password        Role           Permissions
+  --------    --------        ----           -----------
+  alice       Acme@2026!      sales_user     Read only
+  bob         Acme@2026!      support_user   Read + update issues
+  carol       Acme@2026!      admin          Full access (read + update + create)
+
+--------------------------------------------------------------------------------
+SEED DATA - CUSTOMERS
+--------------------------------------------------------------------------------
+
+  Customer Name    Company           Tier        Account Manager
+  -------------    -------           ----        ---------------
+  Alice Johnson    TechCorp Ltd      enterprise  Bob Smith
+  David Lee        RetailMax PLC     premium     Carol White
+  Emma Davis       HealthPlus Ltd    standard    Bob Smith
+  Frank Chen       FinServe Group    enterprise  Carol White
+  Grace Kim        EduTech Co        standard    Bob Smith
+
+================================================================================
+DEMO SCENARIOS
+================================================================================
+
+--------------------------------------------------------------------------------
+SCENARIO 1 - ALICE (sales_user): Read-Only Access
+--------------------------------------------------------------------------------
+Login as: alice / Acme@2026!
+
+Alice can view customer profiles and issues but cannot make any changes.
+
+EXAMPLE QUERIES:
+
+  1. List all customers
+     "Show me all customers"
+
+  2. Get a customer profile
+     "What is the profile of TechCorp?"
+     "Get me the details for FinServe Group"
+
+  3. View open issues for a customer
+     "Show me all open issues for FinServe Group"
+     "What issues does TechCorp have right now?"
+
+  4. View issue history
+     "Summarise the history of issue 1"
+     "Give me a full summary of issue 5"
+
+  5. Multi-step chained query
+     "Get me the profile for Emma Davis and then summarise her open issue"
+
+  6. Escalation brief (read-only workflow, valid for all roles)
+     "Give me an escalation brief for TechCorp"
+
+  7. Out-of-scope query (graceful decline)
+     "What is the weather in London today?"
+
+--------------------------------------------------------------------------------
+SCENARIO 2 - RBAC ENFORCEMENT: Alice blocked from restricted actions
+--------------------------------------------------------------------------------
+Login as: alice / Acme@2026!
+
+Run these queries to demonstrate the two-layer RBAC enforcement:
+
+  ATTEMPT 1 - Try to create a next action (admin-only):
+    "Create a next action for issue 3: send RetailMax a fix plan by 2025-06-01"
+
+    Expected response: Permission denied - role [sales_user] does not have
+    the 'create_next_action' permission.
+
+  ATTEMPT 2 - Try to update an issue (support_user + admin only):
+    "Mark issue 1 as in_progress"
+    "Update issue 2 priority to critical"
+
+    Expected response: Permission denied - role [sales_user] does not have
+    the 'update_issue' permission.
+
+--------------------------------------------------------------------------------
+SCENARIO 3 - BOB (support_user): Issue Updates
+--------------------------------------------------------------------------------
+Login as: bob / Acme@2026!
+
+Bob can read everything Alice can, and also update issue status/priority and
+add progress notes. He cannot create next actions.
+
+EXAMPLE QUERIES:
+
+  1. Update issue status
+     "Mark issue 4 as in_progress"
+     "Close issue 7 - mark it as resolved"
+
+  2. Update issue priority
+     "Escalate issue 3 to critical priority"
+
+  3. Add a progress note
+     "Add a note to issue 2: engineering has identified the root cause"
+
+  4. Combined update
+     "Mark issue 5 as in_progress and add a note that the compliance team is investigating"
+
+  5. Multi-step with context
+     "List all customers with critical issues"
+     "Get me the profile for a customer called Emma Davis and then summarise her open issue"
+
+  6. Recommended next actions
+     "What are the recommended next actions for issue 1?"
+
+  ATTEMPT - Try to create a next action (should be blocked):
+    "Create a next action for issue 1: deploy the rate limit patch by 2025-06-01"
+
+    Expected response: Permission denied - role [support_user] does not have
+    the 'create_next_action' permission.
+
+--------------------------------------------------------------------------------
+SCENARIO 4 - CAROL (admin): Full Access + Escalation Brief
+--------------------------------------------------------------------------------
+Login as: carol / Acme@2026!
+
+Carol has full access. Use her account to demonstrate the escalation skill and
+next action creation.
+
+EXAMPLE QUERIES:
+
+  1. Create a next action
+     "Create a next action for issue 4: assign an engineer to fix the dashboard
+      widgets by 2025-06-01"
+
+     "Create a next action for issue 1: deploy rate-limit patch to production
+      gateway, assigned to Engineering, due 2025-05-10"
+
+  2. Escalation brief (deterministic multi-step skill)
+     "Give me an escalation brief for TechCorp"
+     "Generate an executive brief for FinServe Group"
+     "Escalation brief for HealthPlus"
+
+  3. Escalation + follow-up action in same session
+     "Give me an escalation brief for TechCorp"
+     [after receiving the brief]
+     "Create a next action for issue 2: schedule maintenance window, assigned
+      to Carol White, due 2025-05-15"
+
+  4. Status report
+     "Give me a status report for RetailMax"
+
+--------------------------------------------------------------------------------
+SCENARIO 5 - SESSION MEMORY: Multi-turn conversations
+--------------------------------------------------------------------------------
+Login as: bob / Acme@2026!
+
+Demonstrate that the assistant maintains context across turns within a session.
+
+  Turn 1:  "Get me the profile for TechCorp"
+  Turn 2:  "What open issues do they have?"     (no need to repeat TechCorp)
+  Turn 3:  "Summarise the first one"            (agent infers issue ID from context)
+  Turn 4:  "Mark it as in_progress"             (still referencing same issue)
+
+================================================================================
+ARCHITECTURE SUMMARY
+================================================================================
+
+  Component        Port    Purpose
+  ---------        ----    -------
+  React UI         3000    Chat interface, login, session management
+  FastAPI App      8000    Agent runner, auth, RBAC layer 1, session memory
+  MCP Server       8001    Tool definitions, SQL execution, RBAC layer 2
+  Keycloak         8080    OIDC identity provider, JWT issuer
+  PostgreSQL       5432    Operational data (customers, issues, next actions)
+  Redis            6379    Session memory + tool result cache
+  Arize Phoenix    6006    Distributed tracing and observability
+
+RBAC ENFORCEMENT LAYERS:
+
+  Layer 1 - Application (FastAPI):
+    Decodes Keycloak JWT, extracts realm_access.roles, maps to permissions set.
+    Blocks restricted tool calls before they reach the MCP server.
+    Returns 403 with clear message: "Permission denied: role [X] cannot do Y"
+
+  Layer 2 - MCP Server:
+    Independently checks the caller's role on every /tools/call request.
+    Prevents bypassing the app layer via direct API calls.
+    update_issue   -> allowed for: support_user, admin
+    create_next_action -> allowed for: admin only
+
+  Layer 3 - System Prompt (soft guidance only, not a security boundary):
+    Claude is told the user's role and permissions.
+    Guides the model to not attempt tools it cannot use.
+
+ESCALATION SKILL (deterministic, not freeform):
+  Triggered by keywords: escalat, escalation brief, executive summary,
+  executive brief, status report.
+  Sequence: get_customer_profile -> get_open_issues -> summarise_issue (each)
+  -> single LLM call with all data -> structured brief (max 400 words).
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+  Issue                          Fix
+  -----                          ---
+  App not starting               Check ANTHROPIC_API_KEY is set in .env
+  Keycloak login fails           Wait 2-3 min; run: docker compose logs keycloak
+  "service unhealthy" errors     Run: docker compose ps   to check which service
+  Permission denied unexpectedly Confirm you are logged in as the right user
+  Blank chat response            Check app logs: docker compose logs app
+  Phoenix shows no traces        Confirm phoenix container is running on port 6006
+
+  To view all container logs:
+    docker compose logs -f
+
+  To restart a single service:
+    docker compose restart app
+
+================================================================================
